@@ -1,9 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
+#include <iostream>
+using namespace std;
 using namespace sf;
 
 const int M = 20;
-const int N = 10;
+const int N = 15;
 int field[M][N] = { 0 };
 
 struct Point{ int x, y;} a[4], b[4];
@@ -21,7 +23,8 @@ int figures[7][4] =
 
 bool check() {
 	for (int i = 0; i < 4; i++)
-		if (a[i].x < 0 || a[i].x >= N || a[i].y >= M) return 0;
+		if (a[i].x < 0 || a[i].x >=N || a[i].y >=M) {return 0;}
+		//else if (a[i].x<0 || a[i].y<0) return 1;
 		else if (field[a[i].y][a[i].x]) return 0;
 
 	return 1;
@@ -30,12 +33,14 @@ bool check() {
 int main() {
 	srand(time(0));
 	RenderWindow window(VideoMode(400,500),"The Game!");
-	Texture t;
+	Texture t, t1;
 	t.loadFromFile("images/tiles.png");
-	Sprite s(t);
+	t1.loadFromFile("images/game_over.png");
+	Sprite s(t), g(t1);
 	s.setTextureRect(IntRect(0,0,18,18));
 	int dx = 0; bool rotate = 0; int colorNum = 1;
 	float timer = 0, delay = 0.3;
+	int close = 0;
 
 	Clock clock;
 
@@ -90,33 +95,44 @@ int main() {
 
 		//check lines//
 		int k = M - 1;
-		for (int i = M - 1; i > 0;i--) {
+		for (int i = M - 1; i >= 0;i--) {
 			int count = 0;
 			for (int j = 0; j < N;j++) {
 				if (field[i][j]) count++;
 			}
 			if (count < N) k--;
+			//if (k == 0) window.close();
 		}
 
 		dx = 0; rotate = 0; delay = 0.3;
 		//////draw///
 		window.clear(Color::White);
+		
 
-		for (int i = 0; i < M;i++) {
-			for (int j = 0; j< N;j++) {
-				if (field[i][j] == 0) continue;
-				s.setTextureRect(IntRect(field[i][j]*18,0,18,18));
-				s.setPosition(j*18,i*18);
-				window.draw(s);
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
+					if (field[i][j] == 0) continue;
+					s.setTextureRect(IntRect(field[i][j] * 18, 0, 18, 18));
+					s.setPosition(j * 18, i * 18);
+					if (field[0][j]) close = 1;  
+					window.draw(s);
 			}
+			
 		}
-
+		
 		for (int i = 0; i < 4;i++) {
-			s.setTextureRect(IntRect(colorNum*18,0,18,18));
-			s.setPosition(a[i].x*18, a[i].y*18);
+			s.setTextureRect(IntRect(colorNum * 18, 0, 18, 18));
+			s.setPosition(a[i].x * 18, a[i].y * 18);
 			window.draw(s);
 		}
-		window.draw(s);
+		if (close) {
+			window.clear();
+			window.draw(g);
+			
+		}
+		else{
+			window.draw(s);
+		}
 		window.display();
 	}
 	return 0;
